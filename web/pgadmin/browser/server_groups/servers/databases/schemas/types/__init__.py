@@ -374,7 +374,7 @@ class TypeView(PGChildNodeView, DataTypeReader, SchemaDiffObjectCompare):
             status=200
         )
 
-    def _cltype_formatter(self, type):
+    def _cltype_formatter(self, in_type):
         """
 
         Args:
@@ -385,13 +385,13 @@ class TypeView(PGChildNodeView, DataTypeReader, SchemaDiffObjectCompare):
             after length/precision so we will set flag for
             sql template
         """
-        if '[]' in type:
-            type = type.replace('[]', '')
+        if '[]' in in_type:
+            in_type = in_type.replace('[]', '')
             self.hasSqrBracket = True
         else:
             self.hasSqrBracket = False
 
-        return type
+        return in_type
 
     @staticmethod
     def convert_length_precision_to_string(data):
@@ -473,15 +473,15 @@ class TypeView(PGChildNodeView, DataTypeReader, SchemaDiffObjectCompare):
 
                 # If we have length & precision both
                 if is_tlength and is_precision:
-                    matchObj = re.search(r'(\d+),(\d+)', row['fulltype'])
-                    if matchObj:
-                        t_len = matchObj.group(1)
-                        t_prec = matchObj.group(2)
+                    match_obj = re.search(r'(\d+),(\d+)', row['fulltype'])
+                    if match_obj:
+                        t_len = match_obj.group(1)
+                        t_prec = match_obj.group(2)
                 elif is_tlength:
                     # If we have length only
-                    matchObj = re.search(r'(\d+)', row['fulltype'])
-                    if matchObj:
-                        t_len = matchObj.group(1)
+                    match_obj = re.search(r'(\d+)', row['fulltype'])
+                    if match_obj:
+                        t_len = match_obj.group(1)
                         t_prec = None
 
                 type_name = DataTypeReader.parse_type_name(row['typname'])
@@ -1066,18 +1066,12 @@ class TypeView(PGChildNodeView, DataTypeReader, SchemaDiffObjectCompare):
         except Exception as e:
             return internal_server_error(errormsg=str(e))
 
-    @check_precondition
-    def delete(self, gid, sid, did, scid, tid=None, only_sql=False):
+    def _get_req_delete_data(self, tid, only_sql):
         """
-        This function will updates existing the type object
-
-         Args:
-           gid: Server Group ID
-           sid: Server ID
-           did: Database ID
-           scid: Schema ID
-           tid: Type ID
-           only_sql: Return only sql if True
+        This function get data from request
+        :param tid: Table Id
+        :param only_sql: Flag for sql only.
+        :return: data and cascade flag.
         """
         if tid is None:
             data = request.form if request.form else json.loads(
@@ -1093,21 +1087,39 @@ class TypeView(PGChildNodeView, DataTypeReader, SchemaDiffObjectCompare):
         else:
             cascade = False
 
+        return data, cascade
+
+    @check_precondition
+    def delete(self, gid, sid, did, scid, tid=None, only_sql=False):
+        """
+        This function will updates existing the type object
+
+         Args:
+           gid: Server Group ID
+           sid: Server ID
+           did: Database ID
+           scid: Schema ID
+           tid: Type ID
+           only_sql: Return only sql if True
+        """
+        data, cascade = self._get_req_delete_data(tid, only_sql)
+
         try:
             for tid in data['ids']:
-                SQL = render_template(
+                sql = render_template(
                     "/".join([self.template_path,
                               self._PROPERTIES_SQL]),
                     scid=scid, tid=tid,
                     datlastsysoid=self.datlastsysoid,
                     show_system_objects=self.blueprint.show_system_objects
                 )
-                status, res = self.conn.execute_dict(SQL)
+                status, res = self.conn.execute_dict(sql)
                 if not status:
                     return internal_server_error(errormsg=res)
 
                 if not res['rows']:
                     return make_json_response(
+                        status=410,
                         success=0,
                         errormsg=gettext(
                             'Error: Object not found.'
@@ -1120,7 +1132,7 @@ class TypeView(PGChildNodeView, DataTypeReader, SchemaDiffObjectCompare):
                 # Making copy of output for future use
                 data = dict(res['rows'][0])
 
-                SQL = render_template("/".join([self.template_path,
+                sql = render_template("/".join([self.template_path,
                                                 self._DELETE_SQL]),
                                       data=data,
                                       cascade=cascade,
@@ -1128,9 +1140,9 @@ class TypeView(PGChildNodeView, DataTypeReader, SchemaDiffObjectCompare):
 
                 # Used for schema diff tool
                 if only_sql:
-                    return SQL
+                    return sql
 
-                status, res = self.conn.execute_scalar(SQL)
+                status, res = self.conn.execute_scalar(sql)
                 if not status:
                     return internal_server_error(errormsg=res)
 

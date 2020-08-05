@@ -34,6 +34,7 @@ define('pgadmin.node.fts_configuration', [
       id: 'dictname', label: gettext('Dictionaries'), type: 'text', group:null,
       cellHeaderClasses:'width_percent_50', editable: true,
       cell:Backgrid.Extension.MultiSelectAjaxCell, url: 'dictionaries',
+      cache_level:'fts_configuration', cache_node:'fts_configuration',
     }],
     // Validation for token and dictionary list
     validate: function() {
@@ -107,6 +108,9 @@ define('pgadmin.node.fts_configuration', [
                   cache_node = (cache_node &&
                                     pgAdmin.Browser.Nodes[cache_node])
                                || node;
+
+                  // Clear the cache to get the latest dictionaries and parsers.
+                  cache_node.clear_cache(this);
 
                   /*
                    * We needs to check, if we have already cached data
@@ -333,42 +337,39 @@ define('pgadmin.node.fts_configuration', [
         var self = this,
           token = self.headerData.get('token');
 
-        if (!token || token == '') {
-          return false;
-        }
+        if (token && token != '') {
+          var coll = self.model.get(self.field.get('name')),
+            m = new (self.field.get('model'))(
+              self.headerData.toJSON(), {
+                silent: true, top: self.model.top,
+                collection: coll, handler: coll,
+              }),
+            checkVars = ['token'],
+            idx = -1;
 
-        var coll = self.model.get(self.field.get('name')),
-          m = new (self.field.get('model'))(
-            self.headerData.toJSON(), {
-              silent: true, top: self.model.top,
-              collection: coll, handler: coll,
-            }),
-          checkVars = ['token'],
-          idx = -1;
-
-        // Find if token exists in grid
-        self.collection.each(function(local_model) {
-          _.each(checkVars, function(v) {
-            var val = local_model.get(v);
-            if(val == token) {
-              idx = coll.indexOf(local_model);
-            }
+          // Find if token exists in grid
+          self.collection.each(function(local_model) {
+            _.each(checkVars, function(v) {
+              var val = local_model.get(v);
+              if(val == token) {
+                idx = coll.indexOf(local_model);
+              }
+            });
           });
-        });
 
 
 
-        // remove 'm' if duplicate value found.
-        if (idx == -1) {
-          coll.add(m);
-          idx = coll.indexOf(m);
+          // remove 'm' if duplicate value found.
+          if (idx == -1) {
+            coll.add(m);
+            idx = coll.indexOf(m);
+          }
+          self.$grid.find('.new').removeClass('new');
+          var newRow = self.grid.body.rows[idx].$el;
+          newRow.addClass('new');
+          //$(newRow).pgMakeVisible('table-bordered');
+          $(newRow).pgMakeVisible('backform-tab');
         }
-        self.$grid.find('.new').removeClass('new');
-        var newRow = self.grid.body.rows[idx].$el;
-        newRow.addClass('new');
-        //$(newRow).pgMakeVisible('table-bordered');
-        $(newRow).pgMakeVisible('backform-tab');
-
 
         return false;
       },

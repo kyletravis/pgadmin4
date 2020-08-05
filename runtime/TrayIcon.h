@@ -12,11 +12,10 @@
 #ifndef TRAYICON_H
 #define TRAYICON_H
 
-#include "pgAdmin4.h"
-
-// QT headers
-#include <QWidget>
 #include "MenuActions.h"
+
+#include <QWidget>
+#include <QSystemTrayIcon>
 
 class TrayIcon : public QWidget
 {
@@ -26,7 +25,9 @@ public:
     TrayIcon();
 
     void Init();
-    void enableShutdownMenu();
+    void enablePostStartOptions();
+    void enableViewLogOption();
+    void disableViewLogOption();
     void setMenuActions(MenuActions * menuActions);
 
 private:

@@ -12,22 +12,21 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include "pgAdmin4.h"
+#include "Runtime.h"
 
-// QT headers
 #include <QThread>
-#include <QMessageBox>
+#include <QUrl>
 
 class Server : public QThread
 {
     Q_OBJECT
 
 public:
-    Server(quint16 port, QString key, QString logFileName);
+    Server(Runtime *runtime, quint16 port, QString key, QString logFileName);
     ~Server();
 
     bool Init();
-    QString getError() { return m_error; }
+    QString getError() const { return m_error; }
 
 public slots:
     void shutdown(QUrl url);
@@ -41,17 +40,16 @@ private:
     QString m_appfile;
     QString m_error;
 
-    quint16  m_port;
+    Runtime *m_runtime;
+    quint16 m_port;
     QString m_key;
     QString m_logFileName;
 
     // Application name in UTF-8 for Python
     wchar_t *m_wcAppName = Q_NULLPTR;
-    QByteArray PGA_APP_NAME_UTF8;
 
     // PythonHome for Python
     wchar_t *m_wcPythonHome = Q_NULLPTR;
-    QByteArray pythonHome_utf8;
 };
 
 #endif // SERVER_H

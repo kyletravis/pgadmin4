@@ -129,11 +129,11 @@ class BatchProcess(object):
 
         created = False
         size = 0
-        id = ctime
+        uid = ctime
         while not created:
             try:
-                id += random_number(size)
-                log_dir = os.path.join(log_dir, id)
+                uid += random_number(size)
+                log_dir = os.path.join(log_dir, uid)
                 size += 1
                 if not os.path.exists(log_dir):
                     os.makedirs(log_dir, int('700', 8))
@@ -178,7 +178,7 @@ class BatchProcess(object):
         tmp_desc = dumps(self.desc)
 
         j = Process(
-            pid=int(id),
+            pid=int(uid),
             command=_cmd,
             arguments=args_val,
             logdir=log_dir,
@@ -201,25 +201,6 @@ class BatchProcess(object):
                 if is_exe(exe_file):
                     return file_quote(exe_file)
             return None
-
-        def convert_environment_variables(env):
-            """
-            This function is use to convert environment variable to string
-            because environment variable must be string in popen
-            :param env: Dict of environment variable
-            :return: Encoded environment variable as string
-            """
-            encoding = sys.getdefaultencoding()
-            if encoding is None or encoding == 'ascii':
-                encoding = 'utf-8'
-            temp_env = dict()
-            for key, value in env.items():
-                if not isinstance(key, str):
-                    key = key.encode(encoding)
-                if not isinstance(value, str):
-                    value = value.encode(encoding)
-                temp_env[key] = value
-            return temp_env
 
         if self.stime is not None:
             if self.etime is None:
@@ -294,8 +275,7 @@ class BatchProcess(object):
             # anyway be the redundant value in paths.
             if not current_app.PGADMIN_RUNTIME:
                 paths.insert(0, os.path.join(u_encode(sys.prefix), u'bin'))
-            python_binary_name = 'python{0}'.format(sys.version_info[0]) \
-                if sys.version_info[0] >= 3 else 'python'
+            python_binary_name = 'python{0}'.format(sys.version_info[0])
             interpreter = which(u_encode(python_binary_name), paths)
 
         p = None
@@ -410,7 +390,7 @@ class BatchProcess(object):
         out_completed = err_completed = False
         process_output = (out != -1 and err != -1)
         enc = sys.getdefaultencoding()
-        if enc is None or enc == 'ascii':
+        if enc == 'ascii':
             enc = 'utf-8'
 
         def read_log(logfile, log, pos, ctime, ecode=None):

@@ -12,9 +12,6 @@
 #ifndef MENUACTIONS_H
 #define MENUACTIONS_H
 
-#include "pgAdmin4.h"
-
-// App headers
 #include "LogWindow.h"
 #include "ConfigWindow.h"
 
@@ -25,17 +22,19 @@ public:
     MenuActions();
 
     void setAppServerUrl(QString appServerUrl);
-    void setLogFile(QString logFile);
-    QString getAppServerUrl() { return m_appServerUrl; }
+    QString getAppServerUrl() const { return m_appServerUrl; }
 
 private:
     QString m_appServerUrl = "";
-    QString m_logFile = "";
     LogWindow *m_logWindow = Q_NULLPTR;
+    ConfigWindow *m_configWindow = Q_NULLPTR;
+
+public slots:
+    void onConfigDone(bool needRestart) const;
 
 protected slots:
-    void onNew();
-    void onCopyUrl();
+    void onNew() const;
+    void onCopyUrl() const;
     void onConfig();
     void onLog();
     void onQuit();

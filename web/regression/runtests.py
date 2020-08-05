@@ -9,7 +9,6 @@
 
 """ This file collect all modules/files present in tests directory and add
 them to TestSuite. """
-from __future__ import print_function
 
 import argparse
 import atexit
@@ -820,6 +819,7 @@ if __name__ == '__main__':
                             app_starter_local.stop_app()
                         if handle_cleanup:
                             handle_cleanup()
+                        raise
             else:
                 print(
                     "\n============= Either Selenium Grid is NOT up OR"
@@ -841,6 +841,7 @@ if __name__ == '__main__':
         except SystemExit:
             if handle_cleanup:
                 handle_cleanup()
+            raise
         print_test_results()
 
     # Stop code coverage

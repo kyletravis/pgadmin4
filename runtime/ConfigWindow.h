@@ -25,8 +25,9 @@ class ConfigWindow : public QDialog
 public:
     explicit ConfigWindow(QWidget *parent = Q_NULLPTR);
 
-    void LoadSettings();
-    bool SaveSettings();
+signals:
+    void accepted(bool needRestart);
+    void closing(bool accepted);
 
 private slots:
     void on_buttonBox_accepted();
@@ -35,6 +36,8 @@ private slots:
 
 private:
     Ui::ConfigWindow *ui;
+    bool m_needRestart;
+
     void initConfigWindow();
 };
 
