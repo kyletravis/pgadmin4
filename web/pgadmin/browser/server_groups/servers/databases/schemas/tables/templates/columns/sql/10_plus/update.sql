@@ -21,7 +21,11 @@ ALTER TABLE {{conn|qtIdent(data.schema, data.table)}}
  COLLATE {{data.collspcname}}{% elif o_data.collspcname %} COLLATE {{o_data.collspcname}}{% endif %};
 {% endif %}
 {###  Alter column default value ###}
-{% if data.defval is defined and data.defval is not none and data.defval != '' and data.defval != o_data.defval %}
+{% if is_view_only and data.defval is defined and data.defval is not none and data.defval != '' and data.defval != o_data.defval %}
+ALTER VIEW {{conn|qtIdent(data.schema, data.table)}}
+    ALTER COLUMN {% if data.name %}{{conn|qtTypeIdent(data.name)}}{% else %}{{conn|qtTypeIdent(o_data.name)}}{% endif %} SET DEFAULT {{data.defval}};
+
+{% elif data.defval is defined and data.defval is not none and data.defval != '' and data.defval != o_data.defval %}
 ALTER TABLE {{conn|qtIdent(data.schema, data.table)}}
     ALTER COLUMN {% if data.name %}{{conn|qtTypeIdent(data.name)}}{% else %}{{conn|qtTypeIdent(o_data.name)}}{% endif %} SET DEFAULT {{data.defval}};
 
@@ -60,7 +64,7 @@ CACHE {{data.seqcache|int}} {% endif %}
 {% if 'attidentity' in data and data.attidentity != '' and o_data.attidentity != '' and data.attidentity != o_data.attidentity %}
 ALTER TABLE {{conn|qtIdent(data.schema, data.table)}}
     ALTER COLUMN {% if data.name %}{{conn|qtTypeIdent(data.name)}}{% else %}{{conn|qtTypeIdent(o_data.name)}}{% endif %} SET GENERATED {% if data.attidentity == 'a' %}ALWAYS{% else%}BY DEFAULT{% endif %}{% if attidentity_params == false %};{% endif %}
-{% else %}
+{% elif attidentity_params %}
 ALTER TABLE {{conn|qtIdent(data.schema, data.table)}}
     ALTER COLUMN {% if data.name %}{{conn|qtTypeIdent(data.name)}}{% else %}{{conn|qtTypeIdent(o_data.name)}}{% endif %}{% endif %}
 {% if data.seqcycle %} SET CYCLE{% elif (data.seqcycle == False and o_data.seqcycle and data.seqcycle != o_data.seqcycle) %} SET NO CYCLE{% endif %}

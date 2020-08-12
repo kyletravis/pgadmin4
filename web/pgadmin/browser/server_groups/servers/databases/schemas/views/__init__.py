@@ -9,6 +9,7 @@
 
 """Implements View and Materialized View Node"""
 
+import copy
 import re
 from functools import wraps
 
@@ -815,11 +816,16 @@ class ViewNode(PGChildNodeView, VacuumSettings, SchemaDiffObjectCompare):
             if is_error:
                 return None, errmsg
 
+            self.view_schema = old_data['schema']
+
             try:
                 sql = render_template("/".join(
                     [self.template_path,
                      self._SQL_PREFIX + self._UPDATE_SQL]), data=data,
                     o_data=old_data, conn=self.conn)
+
+                if 'definition' in data and data['definition']:
+                    sql += self.get_columns_sql(did, vid)
 
             except Exception as e:
                 current_app.logger.exception(e)
@@ -1300,14 +1306,62 @@ class ViewNode(PGChildNodeView, VacuumSettings, SchemaDiffObjectCompare):
             sql_data += SQL
         return sql_data
 
+    def get_columns_sql(self, did, vid):
+        """
+        Get all column associated with view node,
+        generate their sql and render
+        into sql tab
+        """
+
+        sql_data = ''
+        SQL = render_template("/".join(
+            [self.column_template_path,
+                self._PROPERTIES_SQL.format(self.manager.version)]),
+            did=did,
+            tid=vid)
+        status, data = self.conn.execute_dict(SQL)
+        if not status:
+            return internal_server_error(errormsg=data)
+
+        for rows in data['rows']:
+
+            res = {
+                'name': rows['name'],
+                'atttypid': rows['atttypid'],
+                'attlen': rows['attlen'],
+                'typnspname': rows['typnspname'],
+                'defval': None,
+                'description': None,
+                'table': rows['relname'],
+                'schema': self.view_schema
+            }
+
+            o_data = copy.deepcopy(rows)
+
+            # Generate alter statement for default value
+            if 'defval' in rows and rows['defval'] is not None:
+                res['defval'] = rows['defval']
+                o_data['defval'] = None
+
+            # Generate alter statement for comments
+            if 'description' in rows and (rows['description'] is not None or
+                                          rows['description'] != ''):
+                res['description'] = rows['description']
+                o_data['description'] = None
+
+            SQL = render_template("/".join(
+                [self.column_template_path,
+                    self._UPDATE_SQL.format(self.manager.version)]),
+                o_data=o_data, data=res, is_view_only=True)
+            sql_data += SQL
+        return sql_data
+
     @check_precondition
     def sql(self, gid, sid, did, scid, vid, **kwargs):
         """
         This function will generate sql to render into the sql panel
         """
-        diff_schema = kwargs.get('diff_schema', None)
         json_resp = kwargs.get('json_resp', True)
-
         display_comments = True
 
         if not json_resp:
@@ -1329,11 +1383,6 @@ class ViewNode(PGChildNodeView, VacuumSettings, SchemaDiffObjectCompare):
             )
 
         result = res['rows'][0]
-        if diff_schema:
-            result['definition'] = result['definition'].replace(
-                result['schema'],
-                diff_schema)
-            result['schema'] = diff_schema
 
         # sending result to formtter
         frmtd_reslt = self.formatter(result)
@@ -1383,11 +1432,16 @@ class ViewNode(PGChildNodeView, VacuumSettings, SchemaDiffObjectCompare):
             [self.template_path, self._SQL_PREFIX + self._GRANT_SQL]),
             data=result)
 
+        if ('seclabels' in result and len(result['seclabels']) > 0)\
+                or ('datacl' in result and len(result['datacl']) > 0):
+            SQL += "\n"
+
         sql_data += SQL
         sql_data += self.get_rule_sql(vid, display_comments)
         sql_data += self.get_trigger_sql(vid, display_comments)
         sql_data += self.get_compound_trigger_sql(vid, display_comments)
         sql_data += self.get_index_sql(did, vid, display_comments)
+        sql_data += self.get_columns_sql(did, vid)
 
         if not json_resp:
             return sql_data
@@ -1631,12 +1685,9 @@ class ViewNode(PGChildNodeView, VacuumSettings, SchemaDiffObjectCompare):
         scid = kwargs.get('scid')
         oid = kwargs.get('oid')
         data = kwargs.get('data', None)
-        diff_schema = kwargs.get('diff_schema', None)
         drop_sql = kwargs.get('drop_sql', False)
 
         if data:
-            if diff_schema:
-                data['schema'] = diff_schema
             sql, name_or_error = self.getSQL(gid, sid, did, data, oid)
             if sql.find('DROP VIEW') != -1:
                 sql = gettext("""
@@ -1649,9 +1700,6 @@ class ViewNode(PGChildNodeView, VacuumSettings, SchemaDiffObjectCompare):
             if drop_sql:
                 sql = self.delete(gid=gid, sid=sid, did=did,
                                   scid=scid, vid=oid, only_sql=True)
-            elif diff_schema:
-                sql = self.sql(gid=gid, sid=sid, did=did, scid=scid, vid=oid,
-                               diff_schema=diff_schema, json_resp=False)
             else:
                 sql = self.sql(gid=gid, sid=sid, did=did, scid=scid, vid=oid,
                                json_resp=False)
@@ -1885,7 +1933,6 @@ class MViewNode(ViewNode, VacuumSettings):
         """
         This function will generate sql to render into the sql panel
         """
-        diff_schema = kwargs.get('diff_schema', None)
         json_resp = kwargs.get('json_resp', True)
 
         display_comments = True
@@ -1898,12 +1945,6 @@ class MViewNode(ViewNode, VacuumSettings):
 
         if not status:
             return result
-
-        if diff_schema:
-            result['definition'] = result['definition'].replace(
-                result['schema'],
-                diff_schema)
-            result['schema'] = diff_schema
 
         # merge vacuum lists into one
         vacuum_table = [item for item in result['vacuum_table']

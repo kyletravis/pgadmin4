@@ -19,7 +19,6 @@ from pgadmin.utils.ajax import make_json_response, bad_request, forbidden, \
     make_response as ajax_response, internal_server_error, unauthorized, gone
 from pgadmin.utils.crypto import encrypt, decrypt, pqencryptpassword
 from pgadmin.utils.menu import MenuItem
-from pgadmin.utils.ip import is_valid_ipaddress
 from pgadmin.tools.sqleditor.utils.query_history import QueryHistory
 
 import config
@@ -30,6 +29,7 @@ from pgadmin.utils.master_password import get_crypt_key
 from pgadmin.utils.exception import CryptKeyMissing
 from pgadmin.tools.schema_diff.node_registry import SchemaDiffRegistry
 from psycopg2 import Error as psycopg2_Error, OperationalError
+from pgadmin.browser.server_groups.servers.utils import is_valid_ipaddress
 
 
 def has_any(data, keys):
@@ -523,8 +523,8 @@ class ServerNode(PGChildNodeView):
         if 'db_res' in data:
             data['db_res'] = ','.join(data['db_res'])
 
-        if 'hostaddr' in data and data['hostaddr'] and data['hostaddr'] != '' \
-                and not is_valid_ipaddress(data['hostaddr']):
+        hostaddr = data.get('hostaddr')
+        if hostaddr and not is_valid_ipaddress(hostaddr):
             return make_json_response(
                 success=0,
                 status=400,
@@ -755,8 +755,8 @@ class ServerNode(PGChildNodeView):
                     ).format(arg)
                 )
 
-        if 'hostaddr' in data and data['hostaddr'] and data['hostaddr'] != '' \
-                and not is_valid_ipaddress(data['hostaddr']):
+        hostaddr = data.get('hostaddr')
+        if hostaddr and not is_valid_ipaddress(data['hostaddr']):
             return make_json_response(
                 success=0,
                 status=400,
@@ -774,7 +774,7 @@ class ServerNode(PGChildNodeView):
                 servergroup_id=data.get('gid', gid),
                 name=data.get('name'),
                 host=data.get('host', None),
-                hostaddr=data.get('hostaddr', None),
+                hostaddr=hostaddr,
                 port=data.get('port'),
                 maintenance_db=data.get('db', None),
                 username=data.get('username'),
@@ -841,8 +841,6 @@ class ServerNode(PGChildNodeView):
                     tunnel_password=tunnel_password,
                     server_types=ServerType.types()
                 )
-                if hasattr(str, 'decode') and errmsg is not None:
-                    errmsg = errmsg.decode('utf-8')
                 if not status:
                     db.session.delete(server)
                     db.session.commit()
@@ -1109,8 +1107,6 @@ class ServerNode(PGChildNodeView):
                 server, 401, True, True, getattr(e, 'message', str(e)))
 
         if not status:
-            if hasattr(str, 'decode'):
-                errmsg = errmsg.decode('utf-8')
 
             current_app.logger.error(
                 "Could not connect to server(#{0}) - '{1}'.\nError: {2}"

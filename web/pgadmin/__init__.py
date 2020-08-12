@@ -340,7 +340,8 @@ def create_app(app_name=None):
                     raise FileNotFoundError(
                         'SQLite database file "' + SQLITE_PATH +
                         '" does not exists.')
-                raise Exception('Specified SQLite database file is not valid.')
+                raise RuntimeError('Specified SQLite database file '
+                                   'is not valid.')
         else:
             schema_version = get_version()
 
@@ -567,9 +568,6 @@ def create_app(app_name=None):
                     svr_discovery_id = section
                     description = registry.get(section, 'Description')
                     data_directory = registry.get(section, 'DataDirectory')
-                    if hasattr(str, 'decode'):
-                        description = description.decode('utf-8')
-                        data_directory = data_directory.decode('utf-8')
                     svr_comment = gettext(u"Auto-detected {0} installation "
                                           u"with the data directory at {1}"
                                           ).format(description, data_directory)

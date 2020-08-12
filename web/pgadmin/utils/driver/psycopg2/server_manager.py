@@ -16,6 +16,7 @@ import config
 from flask import current_app, session
 from flask_security import current_user
 from flask_babelex import gettext
+from werkzeug.exceptions import InternalServerError
 
 from pgadmin.utils import get_complete_file_path
 from pgadmin.utils.crypto import decrypt
@@ -38,6 +39,7 @@ class ServerManager(object):
     This class contains the information about the given server.
     And, acts as connection manager for that particular session.
     """
+    _INFORMATION_MSG = gettext("Information is not available.")
 
     def __init__(self, server):
         self.connections = dict()
@@ -158,17 +160,17 @@ class ServerManager(object):
     def major_version(self):
         if self.sversion is not None:
             return int(self.sversion / 10000)
-        raise Exception(gettext("Information is not available."))
+        raise InternalServerError(self._INFORMATION_MSG)
 
     def minor_version(self):
         if self.sversion:
             return int(int(self.sversion / 100) % 100)
-        raise Exception(gettext("Information is not available."))
+        raise InternalServerError(self._INFORMATION_MSG)
 
     def patch_version(self):
         if self.sversion:
             return int(int(self.sversion / 100) / 100)
-        raise Exception(gettext("Information is not available."))
+        raise InternalServerError(self._INFORMATION_MSG)
 
     def connection(
             self, database=None, conn_id=None, auto_reconnect=True, did=None,
@@ -364,9 +366,6 @@ WHERE db.oid = {0}""".format(did))
         if did is not None:
             if did in self.db_info and 'datname' in self.db_info[did]:
                 database = self.db_info[did]['datname']
-                if hasattr(str, 'decode') and \
-                        not isinstance(database, unicode):
-                    database = database.decode('utf-8')
                 if database is None:
                     return False
             else:
@@ -477,12 +476,8 @@ WHERE db.oid = {0}""".format(did))
 
             try:
                 tunnel_password = decrypt(tunnel_password, crypt_key)
-                # Handling of non ascii password (Python2)
-                if hasattr(str, 'decode'):
-                    tunnel_password = \
-                        tunnel_password.decode('utf-8').encode('utf-8')
                 # password is in bytes, for python3 we need it in string
-                elif isinstance(tunnel_password, bytes):
+                if isinstance(tunnel_password, bytes):
                     tunnel_password = tunnel_password.decode()
 
             except Exception as e:
@@ -508,7 +503,8 @@ WHERE db.oid = {0}""".format(did))
                     ssh_password=tunnel_password,
                     remote_bind_address=(self.host, self.port)
                 )
-
+            # flag tunnel threads in daemon mode to fix hang issue.
+            self.tunnel_object.daemon_forward_servers = True
             self.tunnel_object.start()
             self.tunnel_created = True
         except BaseSSHTunnelForwarderError as e:
