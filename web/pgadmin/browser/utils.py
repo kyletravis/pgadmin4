@@ -221,6 +221,8 @@ class NodeView(with_metaclass(MethodViewType, View)):
 
     # Inherited class needs to modify these parameters
     node_type = None
+    # Inherited class needs to modify these parameters
+    node_label = None
     # This must be an array object with attributes (type and id)
     parent_ids = []
     # This must be an array object with attributes (type and id)
@@ -388,6 +390,7 @@ class PGChildNodeView(NodeView):
     _GET_DEFINITION_SQL = 'get_definition.sql'
     _GET_SCHEMA_OID_SQL = 'get_schema_oid.sql'
     _GET_COLUMNS_SQL = 'get_columns.sql'
+    _GET_COLUMNS_FOR_TABLE_SQL = 'get_columns_for_table.sql'
 
     def get_children_nodes(self, manager, **kwargs):
         """
@@ -707,3 +710,7 @@ class PGChildNodeView(NodeView):
                 )
 
         return dependency
+
+    def not_found_error_msg(self, custom_label=None):
+        return gettext("Could not find the specified {}.".format(
+            custom_label if custom_label else self.node_label).lower())

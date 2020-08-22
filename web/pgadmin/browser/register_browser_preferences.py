@@ -7,6 +7,8 @@
 #
 ##########################################################################
 from flask_babelex import gettext
+from pgadmin.utils.constants import PREF_LABEL_DISPLAY,\
+    PREF_LABEL_KEYBOARD_SHORTCUTS
 
 LOCK_LAYOUT_LEVEL = {
     'PREVENT_DOCKING': 'docking',
@@ -19,25 +21,25 @@ def register_browser_preferences(self):
     self.show_system_objects = self.preference.register(
         'display', 'show_system_objects',
         gettext("Show system objects?"), 'boolean', False,
-        category_label=gettext('Display')
+        category_label=PREF_LABEL_DISPLAY
     )
 
     self.preference.register(
         'display', 'enable_acitree_animation',
         gettext("Enable browser tree animation?"), 'boolean', True,
-        category_label=gettext('Display')
+        category_label=PREF_LABEL_DISPLAY
     )
 
     self.preference.register(
         'display', 'enable_alertify_animation',
         gettext("Enable dialogue/notification animation?"), 'boolean',
-        True, category_label=gettext('Display')
+        True, category_label=PREF_LABEL_DISPLAY
     )
 
     self.preference.register(
         'display', 'browser_tree_state_save_interval',
         gettext("Browser tree state saving interval"), 'integer',
-        30, category_label=gettext('Display'),
+        30, category_label=PREF_LABEL_DISPLAY,
         help_str=gettext(
             'Browser tree state saving interval in seconds. '
             'Use -1 to disable the tree saving mechanism.'
@@ -47,7 +49,7 @@ def register_browser_preferences(self):
     self.preference.register(
         'display', 'confirm_on_refresh_close',
         gettext("Confirm on close or refresh?"), 'boolean',
-        True, category_label=gettext('Display'),
+        True, category_label=PREF_LABEL_DISPLAY,
         help_str=gettext(
             'Confirm closure or refresh of the browser or browser tab is '
             'intended before proceeding.'
@@ -58,7 +60,7 @@ def register_browser_preferences(self):
         'display', 'confirm_on_properties_close',
         gettext("Confirm before Close/Reset in object properties dialog?"),
         'boolean',
-        True, category_label=gettext('Display'),
+        True, category_label=PREF_LABEL_DISPLAY,
         help_str=gettext(
             'Confirm before closing or resetting the changes in the '
             'properties dialog for an object if the changes are not saved.'
@@ -68,7 +70,7 @@ def register_browser_preferences(self):
     self.preference.register(
         'display', 'auto_expand_sole_children',
         gettext("Auto-expand sole children"), 'boolean', True,
-        category_label=gettext('Display'),
+        category_label=PREF_LABEL_DISPLAY,
         help_str=gettext(
             'If a treeview node is expanded and has only a single '
             'child, automatically expand the child node as well.'
@@ -78,7 +80,7 @@ def register_browser_preferences(self):
     self.lock_layout = self.preference.register(
         'display', 'lock_layout',
         gettext('Lock Layout'), 'radioModern', LOCK_LAYOUT_LEVEL['NONE'],
-        category_label=gettext('Display'), options=[
+        category_label=PREF_LABEL_DISPLAY, options=[
             {'label': gettext('None'), 'value': LOCK_LAYOUT_LEVEL['NONE']},
             {'label': gettext('Prevent Docking'),
              'value': LOCK_LAYOUT_LEVEL['PREVENT_DOCKING']},
@@ -125,7 +127,7 @@ def register_browser_preferences(self):
             'control': False,
             'key': {'key_code': 66, 'char': 'b'}
         },
-        category_label=gettext('Keyboard shortcuts'),
+        category_label=PREF_LABEL_KEYBOARD_SHORTCUTS,
         fields=fields
     )
 
@@ -140,7 +142,7 @@ def register_browser_preferences(self):
             'control': False,
             'key': {'key_code': 91, 'char': '['}
         },
-        category_label=gettext('Keyboard shortcuts'),
+        category_label=PREF_LABEL_KEYBOARD_SHORTCUTS,
         fields=fields
     )
 
@@ -155,7 +157,7 @@ def register_browser_preferences(self):
             'control': False,
             'key': {'key_code': 93, 'char': ']'}
         },
-        category_label=gettext('Keyboard shortcuts'),
+        category_label=PREF_LABEL_KEYBOARD_SHORTCUTS,
         fields=fields
     )
 
@@ -170,7 +172,7 @@ def register_browser_preferences(self):
             'control': False,
             'key': {'key_code': 70, 'char': 'f'}
         },
-        category_label=gettext('Keyboard shortcuts'),
+        category_label=PREF_LABEL_KEYBOARD_SHORTCUTS,
         fields=fields
     )
 
@@ -185,7 +187,7 @@ def register_browser_preferences(self):
             'control': False,
             'key': {'key_code': 79, 'char': 'o'}
         },
-        category_label=gettext('Keyboard shortcuts'),
+        category_label=PREF_LABEL_KEYBOARD_SHORTCUTS,
         fields=fields
     )
 
@@ -200,7 +202,7 @@ def register_browser_preferences(self):
             'control': False,
             'key': {'key_code': 76, 'char': 'l'}
         },
-        category_label=gettext('Keyboard shortcuts'),
+        category_label=PREF_LABEL_KEYBOARD_SHORTCUTS,
         fields=fields
     )
 
@@ -215,7 +217,7 @@ def register_browser_preferences(self):
             'control': False,
             'key': {'key_code': 72, 'char': 'h'}
         },
-        category_label=gettext('Keyboard shortcuts'),
+        category_label=PREF_LABEL_KEYBOARD_SHORTCUTS,
         fields=fields
     )
 
@@ -230,7 +232,7 @@ def register_browser_preferences(self):
             'control': False,
             'key': {'key_code': 81, 'char': 'q'}
         },
-        category_label=gettext('Keyboard shortcuts'),
+        category_label=PREF_LABEL_KEYBOARD_SHORTCUTS,
         fields=fields
     )
 
@@ -245,7 +247,7 @@ def register_browser_preferences(self):
             'control': False,
             'key': {'key_code': 86, 'char': 'v'}
         },
-        category_label=gettext('Keyboard shortcuts'),
+        category_label=PREF_LABEL_KEYBOARD_SHORTCUTS,
         fields=fields
     )
 
@@ -260,7 +262,7 @@ def register_browser_preferences(self):
             'control': False,
             'key': {'key_code': 83, 'char': 's'}
         },
-        category_label=gettext('Keyboard shortcuts'),
+        category_label=PREF_LABEL_KEYBOARD_SHORTCUTS,
         fields=fields
     )
 
@@ -275,7 +277,7 @@ def register_browser_preferences(self):
             'control': False,
             'key': {'key_code': 78, 'char': 'n'}
         },
-        category_label=gettext('Keyboard shortcuts'),
+        category_label=PREF_LABEL_KEYBOARD_SHORTCUTS,
         fields=fields
     )
 
@@ -290,7 +292,7 @@ def register_browser_preferences(self):
             'control': False,
             'key': {'key_code': 69, 'char': 'e'}
         },
-        category_label=gettext('Keyboard shortcuts'),
+        category_label=PREF_LABEL_KEYBOARD_SHORTCUTS,
         fields=fields
     )
 
@@ -305,7 +307,7 @@ def register_browser_preferences(self):
             'control': False,
             'key': {'key_code': 68, 'char': 'd'}
         },
-        category_label=gettext('Keyboard shortcuts'),
+        category_label=PREF_LABEL_KEYBOARD_SHORTCUTS,
         fields=fields
     )
 
@@ -320,7 +322,7 @@ def register_browser_preferences(self):
             'control': False,
             'key': {'key_code': 77, 'char': 'm'}
         },
-        category_label=gettext('Keyboard shortcuts'),
+        category_label=PREF_LABEL_KEYBOARD_SHORTCUTS,
         fields=fields
     )
 
@@ -335,7 +337,7 @@ def register_browser_preferences(self):
             'control': False,
             'key': {'key_code': 85, 'char': 'u'}
         },
-        category_label=gettext('Keyboard shortcuts'),
+        category_label=PREF_LABEL_KEYBOARD_SHORTCUTS,
         fields=fields
     )
 
@@ -350,7 +352,7 @@ def register_browser_preferences(self):
             'control': False,
             'key': {'key_code': 67, 'char': 'c'}
         },
-        category_label=gettext('Keyboard shortcuts'),
+        category_label=PREF_LABEL_KEYBOARD_SHORTCUTS,
         fields=fields
     )
 
@@ -365,7 +367,7 @@ def register_browser_preferences(self):
             'control': False,
             'key': {'key_code': 71, 'char': 'g'}
         },
-        category_label=gettext('Keyboard shortcuts'),
+        category_label=PREF_LABEL_KEYBOARD_SHORTCUTS,
         fields=fields
     )
 
@@ -380,7 +382,7 @@ def register_browser_preferences(self):
             'control': True,
             'key': {'key_code': 93, 'char': ']'}
         },
-        category_label=gettext('Keyboard shortcuts'),
+        category_label=PREF_LABEL_KEYBOARD_SHORTCUTS,
         fields=fields
     )
 
@@ -395,7 +397,7 @@ def register_browser_preferences(self):
             'control': True,
             'key': {'key_code': 91, 'char': '['}
         },
-        category_label=gettext('Keyboard shortcuts'),
+        category_label=PREF_LABEL_KEYBOARD_SHORTCUTS,
         fields=fields
     )
 
@@ -410,7 +412,7 @@ def register_browser_preferences(self):
             'control': False,
             'key': {'key_code': 116, 'char': 'F5'}
         },
-        category_label=gettext('Keyboard shortcuts'),
+        category_label=PREF_LABEL_KEYBOARD_SHORTCUTS,
         fields=fields
     )
 
@@ -425,6 +427,6 @@ def register_browser_preferences(self):
             'control': True,
             'key': {'key_code': 65, 'char': 'a'}
         },
-        category_label=gettext('Keyboard shortcuts'),
+        category_label=PREF_LABEL_KEYBOARD_SHORTCUTS,
         fields=fields
     )

@@ -107,9 +107,9 @@ define(['jquery', 'underscore', 'sources/gettext', 'sources/url_for'],
                 // Idle in transaction
               case 2:
                 if(sqlEditorUtils.previousStatus != status &&
-                        !$status_el.hasClass('fa-clock-o')) {
+                        !$status_el.hasClass('fa-clock')) {
                   $status_el.removeClass()
-                    .addClass('fa fa-clock-o');
+                    .addClass('fa fa-clock');
                   is_status_changed = true;
                 }
                 break;
@@ -205,7 +205,7 @@ define(['jquery', 'underscore', 'sources/gettext', 'sources/url_for'],
         columns headers. Instead of a button, an icon is created */
         let content = null;
         if(is_editable) {
-          content = '<i class="fa fa-pencil"></i>';
+          content = '<i class="fa fa-pencil-alt"></i>';
         }
         else {
           content = '<i class="fa fa-lock"></i>';

@@ -34,6 +34,10 @@
   display: flex;
   border-radius: $btn-border-radius;
   margin: auto;
+
+  & .pg-font-icon {
+    line-height: unset;
+  }
 }
 
 /* darken % taken from bootstrap - button_variant */
@@ -167,7 +171,7 @@
   padding: 0rem 0.75rem;
 
   &.fa, &.pg-font-icon{
-    padding: 0rem 0.25rem 0rem 0rem
+    padding: 0rem 0.25rem 0rem 0rem;
   }
 }
 
@@ -323,6 +327,7 @@
 .context-menu-submenu::after {
   font-family: $font-family-icon;
   content: "\f054" !important;
+  font-weight: 900;
   right: 15px;
   top: 3px;
   font-size: 0.6rem;

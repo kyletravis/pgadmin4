@@ -26,6 +26,7 @@ from pgadmin.tools.schema_diff.model import SchemaDiffModel
 from config import PG_DEFAULT_DRIVER
 from pgadmin.utils.driver import get_driver
 from pgadmin.utils.preferences import Preferences
+from pgadmin.utils.constants import PREF_LABEL_DISPLAY, MIMETYPE_APP_JS
 
 MODULE_NAME = 'schema_diff'
 
@@ -75,7 +76,7 @@ class SchemaDiffModule(PgAdminModule):
         self.preference.register(
             'display', 'schema_diff_new_browser_tab',
             gettext("Open in new browser tab"), 'boolean', False,
-            category_label=gettext('Display'),
+            category_label=PREF_LABEL_DISPLAY,
             help_str=gettext('If set to True, the Schema Diff '
                              'will be opened in a new browser tab.')
         )
@@ -83,7 +84,7 @@ class SchemaDiffModule(PgAdminModule):
         self.preference.register(
             'display', 'ignore_whitespaces',
             gettext("Ignore whitespaces"), 'boolean', False,
-            category_label=gettext('Display'),
+            category_label=PREF_LABEL_DISPLAY,
             help_str=gettext('If set to True, then the Schema Diff '
                              'tool ignores the whitespaces while comparing '
                              'the string objects. Whitespace includes space, '
@@ -139,7 +140,7 @@ def script():
     return Response(
         response=render_template("schema_diff/js/schema_diff.js", _=gettext),
         status=200,
-        mimetype="application/javascript"
+        mimetype=MIMETYPE_APP_JS
     )
 
 
@@ -388,7 +389,8 @@ def databases(sid):
         view = SchemaDiffRegistry.get_node_view('database')
 
         server = Server.query.filter_by(id=sid).first()
-        response = view.nodes(gid=server.servergroup_id, sid=sid)
+        response = view.nodes(gid=server.servergroup_id, sid=sid,
+                              is_schema_diff=True)
         databases = json.loads(response.data)['data']
         for db in databases:
             res.append({
@@ -653,7 +655,8 @@ def get_schemas(sid, did):
     try:
         view = SchemaDiffRegistry.get_node_view('schema')
         server = Server.query.filter_by(id=sid).first()
-        response = view.nodes(gid=server.servergroup_id, sid=sid, did=did)
+        response = view.nodes(gid=server.servergroup_id, sid=sid, did=did,
+                              is_schema_diff=True)
         schemas = json.loads(response.data)['data']
         return schemas
     except Exception as e:

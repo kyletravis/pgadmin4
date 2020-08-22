@@ -440,7 +440,7 @@ define([
 
         if (editable) {
           this.$el.html(
-            '<i class=\'fa fa-pencil-square subnode-edit-in-process\' title=\'' + gettext('Edit row') +  '\' aria-label=\'' + gettext('Edit row') +  '\'></i>'
+            '<i class=\'fa fa-pen-square subnode-edit-in-process\' title=\'' + gettext('Edit row') +  '\' aria-label=\'' + gettext('Edit row') +  '\'></i>'
           );
           let body = $(this.$el).parents()[1],
             container = $(body).find('.tab-content:first > .tab-pane.active:first');
@@ -459,7 +459,7 @@ define([
     },
     render: function() {
       this.$el.empty();
-      this.$el.html('<i class=\'fa fa-pencil-square-o\' title=\'' + gettext('Edit row') + '\' aria-label=\'' + gettext('Edit row') +  '\'></i>');
+      this.$el.html('<i class=\'fa fa-edit\' title=\'' + gettext('Edit row') + '\' aria-label=\'' + gettext('Edit row') +  '\'></i>');
       this.delegateEvents();
       if (this.grabFocus)
         this.$el.trigger('focus');
@@ -563,7 +563,7 @@ define([
       var self = this;
       this.$el.empty();
       $(this.$el).attr('tabindex', 0);
-      this.$el.html('<i aria-label="' + gettext('Delete row') + '" class=\'fa fa-trash\' title=\'' + gettext('Delete row') + '\'></i>');
+      this.$el.html('<i aria-label="' + gettext('Delete row') + '" class=\'fa fa-trash-alt\' title=\'' + gettext('Delete row') + '\'></i>');
       // Listen for Tab/Shift-Tab key
       this.$el.on('keydown', function(e) {
         // with keyboard navigation on space key, mark row for deletion
@@ -1780,6 +1780,9 @@ define([
         options = _.extend({
           format: 'YYYY-MM-DD HH:mm:ss Z',
           icons: {
+            time: 'fa fa-clock',
+            data: 'fa fa-calendar-alt',
+            today: 'fa fa-calendar-check',
             clear: 'fa fa-trash',
           },
           buttons: {
@@ -1857,9 +1860,9 @@ define([
 
       if (event.altKey && event.keyCode == 84){
         if (self.$el.data('datetimepicker').widget.find('.timepicker').is(':visible')){
-          self.$el.data('datetimepicker').widget.find('.fa-calendar').click();
+          self.$el.data('datetimepicker').widget.find('.fa-calendar-alt').click();
         }else{
-          self.$el.data('datetimepicker').widget.find('.fa-clock-o').click();
+          self.$el.data('datetimepicker').widget.find('.fa-clock').click();
         }
       }
 

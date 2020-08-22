@@ -40,12 +40,12 @@ export function setQueryToolDockerTitle(panel, is_query_tool, panel_title, is_fi
 
   if(is_file || is_file == 'true'){
     panel_tooltip = gettext('File - ') + panel_title;
-    panel_icon = 'fa fa-file-text-o';
+    panel_icon = 'fa fa-file-alt';
   }
   else if (is_query_tool == 'false' || is_query_tool == false) {
     // Edit grid titles
     panel_tooltip = gettext('View/Edit Data - ') + panel_title;
-    panel_icon = 'fa fa-table';
+    panel_icon = 'pg-font-icon icon-view-data';
   } else {
     // Query tool titles
     panel_tooltip = gettext('Query Tool - ') + panel_title;

@@ -20,6 +20,7 @@ Housekeeping
 | `Issue #5327 <https://redmine.postgresql.org/issues/5327>`_ -  Improve code coverage and API test cases for Schemas.
 | `Issue #5336 <https://redmine.postgresql.org/issues/5336>`_ -  Improve code coverage and API test cases for Types.
 | `Issue #5700 <https://redmine.postgresql.org/issues/5700>`_ -  Remove old Python 2 compatibility code.
+| `Issue #5731 <https://redmine.postgresql.org/issues/5731>`_ -  Upgrade font awesome from v4 to v5.
 
 Bug fixes
 *********
@@ -34,6 +35,7 @@ Bug fixes
 | `Issue #5490 <https://redmine.postgresql.org/issues/5490>`_ -  Make the runtime configuration dialog non-modal.
 | `Issue #5526 <https://redmine.postgresql.org/issues/5526>`_ -  Fixed an issue where copying and pasting a cell with multiple line data will result in multiple rows.
 | `Issue #5567 <https://redmine.postgresql.org/issues/5567>`_ -  Fixed an issue where conversion of bytea to the binary string results in an error.
+| `Issue #5604 <https://redmine.postgresql.org/issues/5604>`_ -  Fixed an issue where the entire logs is in red text when the user runs backup and restore.
 | `Issue #5632 <https://redmine.postgresql.org/issues/5632>`_ -  Ensure that the user will be able to modify the start value of the Identity column.
 | `Issue #5646 <https://redmine.postgresql.org/issues/5646>`_ -  Ensure that RLS Policy node should be searchable using search object.
 | `Issue #5664 <https://redmine.postgresql.org/issues/5664>`_ -  Fixed an issue where 'ALTER VIEW' statement is missing when the user sets the default value of a column for View.
@@ -42,6 +44,6 @@ Bug fixes
 | `Issue #5708 <https://redmine.postgresql.org/issues/5708>`_ -  Correct TLS certificate filename in the container deployment docs.
 | `Issue #5710 <https://redmine.postgresql.org/issues/5710>`_ -  Fixed an issue when comparing the table with a trigger throwing error in schema diff.
 | `Issue #5713 <https://redmine.postgresql.org/issues/5713>`_ -  Corrected DROP SQL syntax for catalog.
-| `Issue #5716 <https://redmine.postgresql.org/issues/5716>`_ -  Fixed an issue where ajax call continues to fire even after disconnect the database server.
+| `Issue #5716 <https://redmine.postgresql.org/issues/5716>`_ -  Fixed an issue where ajax call continues to fire even after disconnecting the database server.
 | `Issue #5724 <https://redmine.postgresql.org/issues/5724>`_ -  Clarify some of the differences when running in server mode in the docs.
 | `Issue #5730 <https://redmine.postgresql.org/issues/5730>`_ -  Resolve schema diff dependencies by selecting the appropriate node automatically and maintain the order in the generated script.

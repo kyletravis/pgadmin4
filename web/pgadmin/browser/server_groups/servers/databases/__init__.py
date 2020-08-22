@@ -39,6 +39,9 @@ class DatabaseModule(CollectionNodeModule):
     _NODE_TYPE = 'database'
     _COLLECTION_LABEL = _("Databases")
 
+    _DATABASE_CSS_PATH = 'databases/css'
+    _DATABASE_CSS = "/".join([_DATABASE_CSS_PATH, 'database.css'])
+
     def __init__(self, *args, **kwargs):
         self.min_ver = None
         self.max_ver = None
@@ -67,12 +70,12 @@ class DatabaseModule(CollectionNodeModule):
         """
         snippets = [
             render_template(
-                "browser/css/collection.css",
+                self._COLLECTION_CSS,
                 node_type=self.node_type,
                 _=_
             ),
             render_template(
-                "databases/css/database.css",
+                self._DATABASE_CSS,
                 node_type=self.node_type,
                 _=_
             )
@@ -97,6 +100,7 @@ blueprint = DatabaseModule(__name__)
 
 class DatabaseView(PGChildNodeView):
     node_type = blueprint.node_type
+    node_label = "Database"
 
     parent_ids = [
         {'type': 'int', 'id': 'gid'},
@@ -251,9 +255,16 @@ class DatabaseView(PGChildNodeView):
                 'datlastsysoid']
         return last_system_oid
 
-    def get_nodes(self, gid, sid, show_system_templates=False):
+    def get_nodes(self, gid, sid, is_schema_diff=False):
         res = []
         last_system_oid = self.retrieve_last_system_oid()
+
+        # if is_schema_diff then no need to show system templates.
+        if is_schema_diff and self.manager.db_info is not None and \
+                self.manager.did in self.manager.db_info:
+            last_system_oid = \
+                self.manager.db_info[self.manager.did]['datlastsysoid']
+
         server_node_res = self.manager
 
         db_disp_res = None
@@ -303,8 +314,8 @@ class DatabaseView(PGChildNodeView):
         return res
 
     @check_precondition(action="nodes")
-    def nodes(self, gid, sid):
-        res = self.get_nodes(gid, sid)
+    def nodes(self, gid, sid, is_schema_diff=False):
+        res = self.get_nodes(gid, sid, is_schema_diff)
 
         return make_json_response(
             data=res,
@@ -373,7 +384,7 @@ class DatabaseView(PGChildNodeView):
                 status=200
             )
 
-        return gone(errormsg=_("Could not find the database on the server."))
+        return gone(errormsg=self.not_found_error_msg())
 
     @check_precondition(action="properties")
     def properties(self, gid, sid, did):
@@ -389,7 +400,7 @@ class DatabaseView(PGChildNodeView):
 
         if len(res['rows']) == 0:
             return gone(
-                _("Could not find the database on the server.")
+                self.not_found_error_msg()
             )
 
         SQL = render_template(
@@ -794,7 +805,7 @@ class DatabaseView(PGChildNodeView):
 
         if len(rset['rows']) == 0:
             return gone(
-                _("Could not find the database on the server.")
+                self.not_found_error_msg()
             )
 
         res = rset['rows'][0]
@@ -923,7 +934,7 @@ class DatabaseView(PGChildNodeView):
 
             if len(rset['rows']) == 0:
                 return gone(
-                    _("Could not find the database on the server.")
+                    self.not_found_error_msg()
                 )
 
             data['old_name'] = (rset['rows'][0])['name']
@@ -1094,7 +1105,7 @@ class DatabaseView(PGChildNodeView):
 
         if len(res['rows']) == 0:
             return gone(
-                _("Could not find the database on the server.")
+                self.not_found_error_msg()
             )
 
         SQL = render_template(
